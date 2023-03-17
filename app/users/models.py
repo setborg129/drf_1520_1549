@@ -5,6 +5,7 @@ class User(models.Model):
     user_name = models.CharField(max_length=64, verbose_name='Имя пользователя')
     first_name = models.CharField(max_length=64, verbose_name='Имя')
     last_name = models.CharField(max_length=64, verbose_name='Фамилия')
+    Birthday = models.DateField(auto_now=False, null=True)
     email = models.CharField(max_length=128, unique=True, verbose_name='E-Mail')
 
     class Meta:
