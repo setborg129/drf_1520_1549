@@ -17,10 +17,17 @@ from django.contrib import admin
 from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
-from users.views import UserSerializers
-
+from users.views import UserSerializers, BiographyViewSet, BookViewSet
+from TODO.views import ToDoViewSet, ProjectViewSet
+# from app.users.views import UserSerializers, BiographyViewSet, BookViewSet
 route = DefaultRouter()
 route.register('users', UserSerializers)
+route.register('Biography', BiographyViewSet)
+route.register('books', BookViewSet)
+
+route.register('TODO', ToDoViewSet)
+route.register('Project', ProjectViewSet)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
