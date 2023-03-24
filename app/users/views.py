@@ -7,7 +7,7 @@ from .models import User, Biography, Book
 from .serializers import UserSerializers, BiographyModelSerializers, BookModelSerializers
 
 
-class UserSerializers(ModelViewSet):
+class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializers
 
