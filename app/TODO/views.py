@@ -13,6 +13,15 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
+#lesson_6
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, \
+    BasePermission, DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
+
+class CustomPermissions(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.username
+
+
 # class ToDoViewSet(ModelViewSet):
 #     queryset = ToDolist.objects.all()
 #     serializer_class = TodoModelSerializers
