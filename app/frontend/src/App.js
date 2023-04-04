@@ -1,116 +1,123 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
+
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+
+import Users from './components/Users.js';
+import Projects from './components/Project.js';
+import Todos from './components/Todo.js';
+import ProjectTodoList from './components/ProjectTodo.js';
+import LoginForm from './components/Auth.js';
 import axios from 'axios';
-import logo from './logo.svg';
-import './App.css';
-import UserList from "./components/Users.js";
-import ProjectList from "./components/Project.js";
-import TodoList from "./components/Todo.js";
-import ProjectTodoList from "./components/ProjectTodo"
-import {HashRouter, BrowserRouter, Route, Routes, Link, Navigate, useLocation}
-    from 'react-router-dom'
-import Menu from "./components/Menu.js";
+import Cookies from 'universal-cookie';
 
-
-
-const PageNotFound = () => {
-  let {pathname} = useLocation()
-
-  return (
-      <div>
-          Page "{pathname}" not found!
-      </div>
-  )
-}
 
 class App extends React.Component {
   constructor(props) {
-      super(props);
-      this.state = {
-          'users': [],
-          'projects': [],
-          'todos': [],
-          'project': [],
-      }
+    super(props);
+    this.state = {
+      'token': ''
+    }
+  }
+
+  set_token(token) {
+    const cookies = new Cookies();
+    cookies.set('token', token);
+    this.setState({ 'token': token });
+  }
+
+  is_authenticated() {
+    return this.state.token === '';
+  }
+
+  logout() {
+    this.set_token('');
+  }
+
+  get_token_from_storage() {
+    const cookies = new Cookies();
+    const token = cookies.get('token');
+    this.setState({
+      'token': token
+    })
+  }
+
+  get_token(username, password) {
+    axios.post('http://127.0.0.1:8000/api-token-auth', { username: username, password: password })
+      .then(response => {
+        this.set_token(response.data['token']);
+      }).catch(error => alert('Что-то пошло не так(\nПроверьте данные авторизации.'))
+  }
+
+  get_headers() {
+    let headers = {
+      'Content-Type': 'application/json'
+    }
+    if (!this.is_authenticated()) {
+      headers['Authorization'] = 'Token ' + this.state.token
+    }
+    return headers;
   }
 
   componentDidMount() {
-      axios
-          .get('http://localhost:8000/api_users/')
-          .then(response => {
-
-              const users = response.data
-              this.setState(
-                  {
-                    'users': users
-                    }
-            )
-          })
-          .catch(error => console.log(error))
-
-      axios
-          .get('http://localhost:8000/api_Project/')
-          .then(response => {
-              const projects = response.data
-              this.setState(
-                  {
-                    'Project': projects
-                    }
-            )
-          })
-          .catch(error => console.log(error))
-
-      axios
-          .get('http://127.0.0.1:8000/api_TODO/')
-          .then(response => {
-              // const todos = response.data
-              this.setState(
-                  {
-                    'TODO': response.data
-                    }
-            )
-          })
-          .catch(error => console.log(error))
-
-            axios
-          .get('http://localhost:8000/api_Project/')
-          .then(response => {
-              const projects = response.data
-              this.setState(
-                  {
-                    'project': projects
-                    }
-            )
-          })
-          .catch(error => console.log(error))
-
+    this.get_token_from_storage();
   }
 
-    render() {
-      return (
-          <div className="sub_body">
-              <div className="top App_header">
-                <hr></hr>
-                  <BrowserRouter>
-                      <nav>
-                          <li> <Link to='/'>Project list</Link> </li>
-                          <li> <Link to='/TODO'>TODO list</Link> </li>
-                          <li> <Link to='/users'>User list</Link> </li>
-                      </nav>
-                    <Routes>
-                      <Route exact path='/' element={<Navigate to='/projects' />} />
-                      <Route exact path='/users' element={<UserList users={this.state.users} />} />
-                      <Route exact path='/TODO' element={<TodoList  todos1={this.state.todos} />} />
-                      <Route path='/projects'>
-                        <Route index element={<ProjectList projects={this.state.projects} />} />
-                        <Route path=':projectId' element={<ProjectTodoList todos={this.state.project} />} />
-                      </Route>
-                      <Route path='*' element={<PageNotFound />} />
-                    </Routes>
-                  </BrowserRouter>
-              </div>
-          </div>
-      );
+  render() {
+    return (
+      <BrowserRouter>
+        <div className='main'>
+          <Navbar bg="dark" variant="dark" expand="lg">
+            <Container>
+              <Navbar.Toggle aria-controls="basic-navbar-nav" />
+              <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="me-auto">
+                  <Nav.Link as={NavLink} to="/">Users</Nav.Link>
+                  <Nav.Link as={NavLink} to="/projects">Projects</Nav.Link>
+                  <Nav.Link as={NavLink} to="/todos">Todos</Nav.Link>
+                </Nav>
+                <Nav>
+                  {this.is_authenticated() ? <Nav.Link as={NavLink} to="/auth">LogIn</Nav.Link> : <Nav.Link as={NavLink} to="/auth" onClick={() => this.logout()}>LogOut</Nav.Link>}
+                </Nav>
+              </Navbar.Collapse>
+            </Container>
+          </Navbar>
+          <Container fluid='md' className="content" style={{ padding: '0' }}>
+            <Routes>
+              <Route path='/' element={
+                this.is_authenticated() ? <NotFound404 /> : <Users get_headers={() => this.get_headers()} />
+              } />
+              <Route path='/projects' element={
+                this.is_authenticated() ? <NotFound404 /> : <Projects get_headers={() => this.get_headers()} />
+              } />
+              <Route path='/todos' element={
+                this.is_authenticated() ? <NotFound404 /> : <Todos get_headers={() => this.get_headers()} />
+              } />
+              <Route path='/projects/:pk' element={
+                this.is_authenticated() ? <NotFound404 /> : <ProjectTodoList get_headers={() => this.get_headers()} />
+              } />
+              <Route exact path='/auth' element={
+                this.is_authenticated() ? <LoginForm get_token={(username, password) => this.get_token(username, password)} /> : <h1>Вы вошли!</h1>
+              } />
+            </Routes>
+          </Container>
+        </div>
+      </BrowserRouter>
+    )
   }
+
 }
+
+
+const NotFound404 = () => {
+  return (
+    <div>
+      <h1>Страница не найдена</h1>
+    </div>
+  )
+}
+
 
 export default App;
