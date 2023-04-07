@@ -21,18 +21,18 @@ def __str__(self):
 
 
 class ToDolist(models.Model):
-    title = models.CharField(max_length=255)
-    content = models.TextField(blank=True)
-    created = models.DateField(default=timezone.now().date())
-    due_date = models.DateField(default=timezone.now().date())
-    category = models.ForeignKey(User, models.PROTECT, verbose_name='Заметки')
-    is_active = models.BooleanField(default=True, verbose_name='Состояние')
+    project = models.ForeignKey(Project, models.PROTECT, verbose_name='Проект')
+    text = models.TextField(verbose_name='Текст')
+    created = models.DateTimeField(auto_now_add=True, verbose_name='Создана')
+    updated = models.DateTimeField(auto_now=True, verbose_name='Обновлена')
+    user = models.ForeignKey(User, models.PROTECT, verbose_name='Автор заметки')
+    is_active = models.BooleanField(default=False, verbose_name='Состояние')
 
     class Meta:
         verbose_name = ("Заметка")
         verbose_name_plural = ("Заметки")
 
     def __str__(self):
-        return self.name
+        return self.project
 
 
