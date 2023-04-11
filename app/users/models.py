@@ -18,7 +18,7 @@ class User(models.Model):
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return self.user_name
+        return f'{self.first_name} {self.last_name}'
 
 
 class Biography(models.Model):

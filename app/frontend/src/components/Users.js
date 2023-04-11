@@ -1,39 +1,44 @@
-import React from "react";
+import React from 'react';
 
+const UserItem = ({user}) => {
 
-const AuthorItem = ({user}) => {
-                return(
-                    <tr>
-                        <td>
-                            {user.first_name}
-                        </td>
-
-                        <td>
-                            {user.last_name}
-                        </td>
-
-                        <td>
-                            {user.Birthday}
-                        </td>
-                        <td>
-                            {user.email}
-                        </td>
-                    </tr>
-                      )
+    return (
+        <tr>
+            <td>
+                {user.username}
+            </td>
+            <td>
+                {user.last_name}
+            </td>
+            <td>
+                {user.first_name}
+            </td>
+            <td>
+                {user.email}
+            </td>
+        </tr>
+    )
 }
 
-const AuthorList = ({users}) => {
-            return (
-                    <table>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Birthday Year</th>
-                        <th>E-mail</th>
-                        </tr>
-                            { users.map((user) => <AuthorItem user={ user }/> )}
-                    </table>
-            )
+const UserList = ({users}) => {
+
+    return (
+        <table>
+            <th>
+                Username
+            </th>
+            <th>
+                Last name
+            </th>
+            <th>
+                First name
+            </th>
+            <th>
+                Email
+            </th>
+            {users.map((user) => <UserItem user={user} />)}
+        </table>
+    )
 }
 
-export default AuthorList
+export default UserList
